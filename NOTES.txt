@@ -1,0 +1,30 @@
+Anotações
+=========
+
+1) pagina para consultar a classificação atual: /scoreboard
+> tabela de classificação, ordenada por pontuação descendente (2º nivel de ordenação será o nome da patrula)
+> possibilidade de pesquisar por nome de patrulha
+	. apresentará a classificação da patrulha salientando-a a negrito
+	. omitirá todas as restantes patrulhas, excepto:
+		- as 3 primeiras classificadas
+		- a patrulha imediatamente acima
+		- a patrulha imediatamente abaixo
+> possibilidade de aceder aos detalhes da pontuação da patrulha
+> possibilidade de aceder à pontuação por Timebox.
+
+2) página para consultar o programa: /timeline
+> apresenta a linha temporal das atividades, com data de início e fim de cada Timebox, salientando a negrito a Timebox "ativa"
+> possibilidade de visualizar os postos de cada timebox, com data de início e fim
+> possibilidade para saltar para a pontuação por Timebox.
+
+3) Metodo de Checkpoint /chekpoint/<checkin_code>
+> A equipa acedendo aos dados da patrulha, tem disponível um QR Code
+> A equipa partem com um checkin_code que é validado
+> Assim que a equipa chega mostra o QR Code que o staff usa para identificar a equipa
+> Caso o staff não esteja autenticado, uma autenticação é pedida
+> A aplicação verifica que o elemento do staff está só num posto ativo e encaminha-o para lá ou pede-lhe que identifique o posto
+> A aplicação regista a entrada no posto da equipa e encaminha o staff para o report de pontuação
+
+4) Registo de prestação /report/<station_id>/<checkpoint_code>
+> Caso o utilizador entre aqui sem nenhum parametro, é-lhe apresentada a lista de todas as equipas com checkpoint ativo, nos postos a que o utilizador estiver autorizado a reportar
+> O utilizador terá a opção de alternar entre postos 
