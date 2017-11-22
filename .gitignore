@@ -1,1 +1,9 @@
-db.sqlite3
+# Compiled source #
+###################
+*.pyc
+
+# Logs and databases #
+######################
+*.log
+*.sqlite
+*.sqlite3
