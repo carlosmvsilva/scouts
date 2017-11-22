@@ -19,7 +19,7 @@ def team(request, team_id):
 
 @login_required
 def station(request, station_id):
-	return render(request, 'kimball/station.html', {'stage_id': station_id})
+	return render(request, 'kimball/station.html', {'station_id': station_id})
 
 @login_required
 def checkpoint(request, checkin_code):
