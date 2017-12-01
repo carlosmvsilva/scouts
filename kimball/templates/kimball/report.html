@@ -1,5 +1,56 @@
 {% extends "kimball/layout.html" %}
 
 {% block content %}
-<h1>Report {{checkpoint_code}}</h1>
+
+<div data-role="collapsibleset" data-content-theme="a" data-iconpos="right" id="set">
+    <div data-role="collapsible" id="set1" data-collapsed="true">
+        <h3>Alterar checkpoint</h3>
+        <form name="form_checkpoints" method="post" action="{% url 'report' %}">
+			{% csrf_token %}
+			<div class="ui-field-contain">
+			{% if stations %}
+			    <label for="select_station">Postos:</label>
+			    <select name="station_id" id="select_station">
+					<option value="None">Seleccione o posto</option>
+				{% for staff_station in stations %}
+			        <option value="{{ staff_station.id }}" {% if station == staff_station %} selected="seleted" {% endif %}>{{ staff_station.name }}</option>
+				{% endfor %}
+			    </select>
+			{% else %}
+				<p>Sem postos atribuídos!</p>
+			{% endif %}
+			</div>
+			<div class="ui-field-contain">
+			    <label for="select_checkpoint">Checkpoints:</label>
+			    <select name="checkin_code" id="select_checkpoint">
+				{% if checkpoints %}
+				{% for checkpoint_item in checkpoints %}
+			        <option value="{{ checkpoint_item.checkin_code }}" {% if checkpoint.checkin_code == checkpoint_item.checkin_code %} selected{% endif %}>{{ checkpoint_item.patrol }}</option>
+				{% endfor %}
+				{% else %}
+					<option value="#" disabled selected>Sem chekpoints feitos nos posto seleccionado!</option>
+				{% endif %}
+			    </select>
+			</div>
+			<div class="ui-field-contain">
+				<input type="submit" name="Alterar">
+			</div>
+		</form>
+    </div>
+</div>
+
+<h2>Report</h2>
+ Station: {{station}} - Equipa {{checkpoint.patrol}}
+
+<h2>Team Points</h2>
+{{teampoints}}
+
+<script>
+$(function(){
+	$('#select_checkpoints').change(function(){
+		$('#form_checkpoints').submit();
+	});
+});
+</script>
+
 {% endblock content %}
