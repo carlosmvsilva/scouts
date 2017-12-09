@@ -1,0 +1,23 @@
+{% extends "kimball/layout.html" %}
+
+{% block content %}
+<h1>Autenticação</h1>
+	
+<form action="{% url 'login' %}" method="post" id="login-form">
+	{% csrf_token %}
+ 	<div class="form-row">
+    	<label class="required" for="id_username">Utilizador:</label>
+    	<input type="text" name="username" autofocus required id="id_username" maxlength="254" />
+  	</div>
+  	<div class="form-row">
+  		<label class="required" for="id_password">Palavra-passe:</label>
+  		<input type="password" name="password" required id="id_password" />
+    	<input type="hidden" name="next" value="{{next}}" />
+  	</div>
+  	<div class="submit-row">
+    	<label>&nbsp;</label>
+    	<input type="submit" value="Entrar" />
+  	</div>
+</form>
+
+{% endblock content %}

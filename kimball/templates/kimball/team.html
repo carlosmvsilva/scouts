@@ -1,5 +1,9 @@
 {% extends "kimball/layout.html" %}
 
 {% block content %}
-<h1>Patrulha #{{team_id}}</h1>
+<h1>Patrulha {{team}}</h1>
+
+{% if team.checkin_code %}
+<img src="http://chart.apis.google.com/chart?cht=qr&chs=300x300&chl=http://{{ request.get_host }}{% url 'checkin' team.checkin_code %}"/>
+{% endif %}
 {% endblock content %}
