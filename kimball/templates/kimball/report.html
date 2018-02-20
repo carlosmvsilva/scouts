@@ -35,9 +35,11 @@
 
 {% if teampoints %}
 <h2>Team Points</h2>
-{{teampoints}}
-
-<input class="btn" type="submit" name="submit" value="Save">
+<form method="post" action="{% url 'report' %}">
+	{% csrf_token %}
+	{{teampoints}}
+	<input class="btn" type="submit" name="submit" value="Save">
+</form>
 
 {% endif %}
 

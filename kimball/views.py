@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from .models import Team, StationStaff, Station, StationComponent, StationCheckpoint, Timebox, Edition, StationComponentTeamPoints, Scoreboard
 
-from .forms import ContactForm
+from .forms import ContactForm, TeamPointsLineForm
 
 from django.forms import inlineformset_factory
 
@@ -171,14 +171,17 @@ def checkpoint(request, checkin_code):
 @login_required(login_url='/kimball/login')
 def report(request, station_id=None, checkin_code=None):
 
-	PointsFormSet = inlineformset_factory(StationCheckpoint, StationComponentTeamPoints, fields=('component', 'points', 'notes',), extra=0, can_delete=False)
+	PointsFormSet = inlineformset_factory(StationCheckpoint, StationComponentTeamPoints, form=TeamPointsLineForm, fields=('component', 'points', 'notes',), extra=0, can_delete=False)
 
 	if request.method == 'POST':
 		if 'checkin_code' in request.POST:
 			checkin_code = request.POST['checkin_code']
 			checkpoint = StationCheckpoint.objects.filter(checkin_code=checkin_code,checkout__isnull=True)
 			teampoints = PointsFormSet(request.POST, request.FILES, instance=checkpoint)
-
+			if teampoints.is_valid():
+				teampoints.save()
+				
+			return checkpoint(request, None)
 		else:
 			checkpoint = None
 

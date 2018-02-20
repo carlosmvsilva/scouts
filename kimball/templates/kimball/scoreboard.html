@@ -3,6 +3,7 @@
 {% block content %}
 <h1>Classificação</h1>
 
+{% if board %}
 <table>
     <tr>
         <th>Posição</th>
@@ -17,4 +18,8 @@
     </tr>
     {% endfor %}
 </table>
+<p>As pontuações são atualizadas em cada checkout das equipas nos postos, pelo que podem ser provisórias.</p>
+{% else %}
+<p>Sem pontuações ainda...</p>
+{% endif %}
 {% endblock content %}
