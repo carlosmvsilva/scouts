@@ -1,0 +1,12 @@
+{% extends "kimball/layout.html" %}
+
+{% block content %}
+<h1>Contacto</h1>
+	
+<form action="" method="post" role="form">
+	{% csrf_token %}
+ 	{{ form.as_p }}
+  <input type="submit" value="Enviar" />
+</form>
+
+{% endblock content %}
