@@ -9,6 +9,7 @@ urlpatterns = [
 	url(r'^logout/$', views.logout_view, name='logout'),
 	url(r'^timeline/$', views.timeline, name='timeline'),
 	url(r'^scoreboard/$', views.scoreboard, name='scoreboard'),
+	url(r'^contact/$', views.contact, name='contact'),
 	url(r'^team/(?P<team_id>\d+)/$', views.team, name='team'),
 	url(r'^station/(?P<station_id>\d+)/$', views.station, name='station'),
 	url(r'^checkin/(?P<checkin_code>\.*)', views.checkin, name='checkin'),

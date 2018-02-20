@@ -10,10 +10,51 @@ from django.utils.crypto import get_random_string
 
 from django.urls import reverse
 
-from .models import Team, StationStaff, Station, StationComponent, StationCheckpoint, Timebox, Edition, StationComponentTeamPoints
+from .models import Team, StationStaff, Station, StationComponent, StationCheckpoint, Timebox, Edition, StationComponentTeamPoints, Scoreboard
+
+from .forms import ContactForm
+
+from django.forms import inlineformset_factory
+
+from django.core.mail import EmailMessage
+from django.template import Context
+from django.template.loader import get_template
 
 def index(request):
 	return render(request, 'kimball/index.html')
+
+def contact(request):
+	form_class = ContactForm
+
+	if request.method == 'POST':
+		form = form_class(data=request.POST)
+
+		name = request.POST.get('name', '')
+		sender = request.POST.get('sender', '')
+		subject = request.POST.get('subject', '')
+		message = request.POST.get('message', '')
+		cc_myself = request.POST.get('cc_myself', False)
+
+		if form.is_valid():
+			template = get_template('kimball/contact_template.txt')
+			context = Context({
+				'contact_name': name,
+				'contact_email': sender,
+				'contact_subject': subject,
+				'form_content': message,
+			})
+			content = template.render(context)
+			email = EmailMessage(
+				"Novo contacto via kimball app",
+				content,
+				"No Reply kimball <no-reply-kimball@escutismo.pt>",
+				['kimball@escutismo.pt'],
+				headers = {'Reply-To': sender }
+			)
+			email.send()
+			return render(request, 'kimball/contact.html' )
+
+	return render(request, 'kimball/contact.html', {'form': form_class} )
 
 def login_view(request):
 	if 'next' in request.POST:
@@ -55,7 +96,10 @@ def timeline(request):
 	return render(request, 'kimball/timeline.html', {'edition': edition, 'editions':editions, 'timeboxes': timeboxes})
 
 def scoreboard(request):
-	return render(request, 'kimball/scoreboard.html')
+
+	board = Scoreboard.objects.all()
+
+	return render(request, 'kimball/scoreboard.html', {'board': board})
 
 @login_required(login_url='/kimball/login')
 def team(request, team_id):
@@ -127,17 +171,25 @@ def checkpoint(request, checkin_code):
 @login_required(login_url='/kimball/login')
 def report(request, station_id=None, checkin_code=None):
 
-	if 'station_id' in request.POST:
-		station_id = request.POST['station_id']
-		station = Station.objects.get(pk=station_id)
-	else:
-		station = None
+	PointsFormSet = inlineformset_factory(StationCheckpoint, StationComponentTeamPoints, fields=('component', 'points', 'notes',), extra=0, can_delete=False)
 
-	if 'checkin_code' in request.POST:
-		checkin_code = request.POST['checkin_code']
-		checkpoint = StationCheckpoint.objects.filter(checkin_code=checkin_code,checkout__isnull=True)
+	if request.method == 'POST':
+		if 'checkin_code' in request.POST:
+			checkin_code = request.POST['checkin_code']
+			checkpoint = StationCheckpoint.objects.filter(checkin_code=checkin_code,checkout__isnull=True)
+			teampoints = PointsFormSet(request.POST, request.FILES, instance=checkpoint)
+
+		else:
+			checkpoint = None
+
+		if 'station_id' in request.POST:
+			station_id = request.POST['station_id']
+			station = Station.objects.get(pk=station_id)
+		else:
+			station = None
 	else:
 		checkpoint = None
+		station = None
 
 	staff_stations_ids = StationStaff.objects.filter(user=request.user).values_list('station_id').distinct()
 	stations = Station.objects.filter(id__in=staff_stations_ids).order_by('start_date')	
@@ -154,19 +206,18 @@ def report(request, station_id=None, checkin_code=None):
 		checkpoint = checkpoints[0]
 
 	if checkpoint != None:
-		teampoints = StationComponentTeamPoints.objects.filter(checkpoint=checkpoint)
-		if teampoints.count()==0:
-			start_points(station, checkpoint)
-			teampoints = StationComponentTeamPoints.objects.filter(checkpoint=checkpoint)
+		start_points(station, checkpoint)
+		teampoints = PointsFormSet(instance=checkpoint)
 	else:
-		teampoints = []
+		teampoints = None
 
 	return render(request, 'kimball/report.html', {'stations': stations, 'checkpoints':checkpoints, 'station': station, 'checkpoint': checkpoint, 'teampoints':teampoints})
 
 def start_points(station, checkpoint):
-	components = StationComponent.objects.filter(station=station, parent__isnull=True)
-	for component in components:
-		start_component_points(component, checkpoint)
+	if not StationComponentTeamPoints.objects.filter(checkpoint=checkpoint).exists():
+		components = StationComponent.objects.filter(station=station, parent__isnull=True)
+		for component in components:
+			start_component_points(component, checkpoint)
 
 def start_component_points(component, checkpoint):
 	c = StationComponentTeamPoints(component=component, checkpoint=checkpoint)

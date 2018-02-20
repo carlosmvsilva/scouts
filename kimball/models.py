@@ -17,10 +17,11 @@ class Team(models.Model):
 	name = models.CharField(max_length=200)
 	group_number = models.PositiveIntegerField()
 	group_name = models.CharField(max_length=200)
+	locale = models.CharField(max_length=100, default='-')
 	checkin_code = models.CharField(max_length=32)
 
 	def __unicode__(self):
-		return self.name + ' (' + str(self.group_number) + ' - ' + self.group_name + ')'
+		return self.name + ' (' + unicode(self.group_number) + ' - ' + self.group_name + ')'
 
 class Role(models.Model):
 	name = models.CharField(max_length=50)
@@ -72,7 +73,14 @@ class StationStaff(models.Model):
 		unique_together = ('station', 'user')
 
 	def __unicode__(self):
-		return str(self.user) + ' em ' + str(self.station)
+		return unicode(self.user) + ' em ' + unicode(self.station)
+
+class ComponentGroup(models.Model):
+	name = models.CharField(max_length=200)
+	max_points = models.PositiveIntegerField()
+
+	def __unicode__(self):
+		return self.name
 
 class StationComponent(models.Model):
 	station = models.ForeignKey(Station)
@@ -81,9 +89,22 @@ class StationComponent(models.Model):
 	description = models.CharField(max_length=500)
 	max_points = models.PositiveIntegerField()
 	show_on_details = models.BooleanField()
+	group = models.ForeignKey(ComponentGroup, on_delete=models.SET_NULL, blank=True, null=True)
 
 	def __unicode__(self):
-		return str(self.station) + ('' if self.parent is None else ' - ' + self.parent.name) + ' - ' + self.name
+		return unicode(self.station) + ('' if self.parent is None else ' - ' + self.parent.name) + ' - ' + self.name
+
+	def as_tree(self):
+		children = list(self.parent_set.all())
+		branch = bool(children)
+		yield branch, self
+		for child in children:
+			for next in child.as_tree():
+				yield next
+		yield branch, None
+
+	def is_leef(self):
+		return count(self.parent_set.all())==0
 
 class StationCheckpoint(models.Model):
 	checkin_code = models.CharField(max_length=32, unique=True)
@@ -98,7 +119,7 @@ class StationCheckpoint(models.Model):
 		unique_together = ('station', 'patrol')
 
 	def __unicode__(self):
-		return str(self.station) + ' - ' + self.patrol.name +' ('+str(self.patrol.group_number)+')'
+		return unicode(self.station) + ' - ' + self.patrol.name +' ('+unicode(self.patrol.group_number)+')'
 
 class StationComponentTeamPoints(models.Model):
 	component = models.ForeignKey(StationComponent)
@@ -110,4 +131,23 @@ class StationComponentTeamPoints(models.Model):
 		unique_together = ('component', 'checkpoint')
 
 	def __unicode__(self):
-		return str(self.checkpoint) + ' - '+self.component.name
+		return unicode(self.checkpoint) + ' - '+self.component.name
+
+	def as_tree(self):
+		children = list(self.component.children.all())
+		branch = bool(children)
+		yield branch, self
+		for child in children:
+			child_component = StationComponentTeamPoints.objects.filter(component=child, checkpoint=self.checkpoint)
+			for next in child_component.as_tree():
+				yield next
+		yield branch, None
+
+class Scoreboard(models.Model):
+	id = models.BigIntegerField(primary_key=True)
+	team = models.ForeignKey(Team, on_delete=models.DO_NOTHING)
+	points = models.PositiveIntegerField(default=0)
+
+	class Meta:
+		managed = False
+		db_table = 'kimball_scoreboard_v'

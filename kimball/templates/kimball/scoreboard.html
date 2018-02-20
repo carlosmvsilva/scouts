@@ -2,4 +2,19 @@
 
 {% block content %}
 <h1>Classificação</h1>
+
+<table>
+    <tr>
+        <th>Posição</th>
+        <th>Equipa</th>
+        <th>Pontuação</th>
+    </tr>
+    {% for item in board %}
+    <tr> 
+        <td>{{ item.id }}</td>
+        <td>{{ item.team }}</td>
+        <td>{{ item.points }}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock content %}

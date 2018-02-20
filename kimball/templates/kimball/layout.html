@@ -2,6 +2,7 @@
 {% url 'timeline' as timeline_page %}
 {% url 'scoreboard' as scoreboard_page %}
 {% url 'report' as report_page %}
+{% url 'contact' as contact_page %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -52,7 +53,7 @@
 				</li><li>
 					<a href="{{ report_page }}" data-icon="bars"{% if request.path == report_page %} class="ui-btn-active"{% endif %}>Report</a>
 				</li>
-				<li><a href="#" data-icon="bars">Contatos</a></li>
+				<li><a href="{{ contact_page }}" data-icon="bars">Contatos</a></li>
 			</ul>
 		</nav>
 	  	<h4>Junta de Núcleo de Guimarães</h4>

@@ -9,7 +9,7 @@
 {% block content %}
 <form name="form_editions" method="post" action="{% url 'timeline' %}" onChange="form.submit();">
 	{% csrf_token %}
-	<select name="edition_id" id="select_edition">
+	<select name="edition_id" id="select_edition" disabled="true">
 		<option value="None" disabled>Seleccione a edição</option>
 		{% if editions %}
 		

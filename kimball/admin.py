@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Edition, Team, Role, TeamMember, Timebox, Station, StationStaff, StationComponent, StationCheckpoint, StationComponentTeamPoints
+from .models import Edition, Team, Role, TeamMember, Timebox, Station, StationStaff, ComponentGroup, StationComponent, StationCheckpoint, StationComponentTeamPoints
 
 # Define Forms for models
 class TimeboxInline(admin.TabularInline):
@@ -23,9 +23,9 @@ class TeamMemberInline(admin.TabularInline):
 	extra = 1
 
 class TeamAdmin(admin.ModelAdmin):
-	list_filter = ['group_number']
-	list_display = ('name', 'group_number', 'group_name', 'edition')	
-	search_fields = ['name', 'group_number', 'group_name', 'edition']
+	list_filter = ['group_number', 'locale']
+	list_display = ('name', 'group_number', 'group_name', 'locale', 'edition')	
+	search_fields = ['name', 'group_number', 'group_name', 'locale', 'edition']
 	inlines = [TeamMemberInline]
 
 class TeamMemberAdmin(admin.ModelAdmin):
@@ -83,6 +83,10 @@ class StationComponentTeamPointsAdmin(admin.ModelAdmin):
 	list_display = ('checkpoint', 'component', 'points', 'notes')
 	search_fields = ['checkpoint', 'component', 'notes']
 
+class ComponentGroupAdmin(admin.ModelAdmin):
+	list_display = ('name', 'max_points')
+	search_fields = ['name', 'max_points']
+
 
 # Register your models here.
 admin.site.register(Edition, EditionAdmin)
@@ -95,3 +99,4 @@ admin.site.register(Station, StationAdmin)
 # admin.site.register(StationComponent, StationComponentAdmin)
 admin.site.register(StationCheckpoint, StationCheckpointAdmin)
 # admin.site.register(StationComponentTeamPoints, StationComponentTeamPointsAdmin)
+admin.site.register(ComponentGroup, ComponentGroupAdmin)

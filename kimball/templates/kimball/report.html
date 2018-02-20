@@ -33,18 +33,18 @@
 <h2>Report</h2>
  Station: {{station}} - Equipa {{checkpoint.patrol}}
 
-<h2>Team Points</h2>
 {% if teampoints %}
-<ul>
-{% for itempoints in teampoints %}
-	<li>{{ itempoints }} - {{ itempoints.points }} - {{ itempoints.notes }}</li>
-{% endfor %}
-</ul>
+<h2>Team Points</h2>
+{{teampoints}}
+
+<input class="btn" type="submit" name="submit" value="Save">
+
 {% endif %}
 
 {% if checkpoint %}
 <a href="{% url 'checkout' checkpoint.id %}">Checkout</a>
 {% endif %}
+
 <script>
 $(function(){
 	$('#select_station').change(function(){
